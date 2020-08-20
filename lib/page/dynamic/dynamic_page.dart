@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_games/common/widget/pull/app_pull_new_load_widget.dart';
-import 'package:flutter_games/page/dynamic/dynamic_bloc.dart';
+import 'package:flutter_games/common/dao/event_dao.dart';
+import 'package:flutter_games/common/style/app_style.dart';
+import 'package:flutter_games/model/home_entity.dart';
+import 'package:flutter_games/redux/app_state.dart';
+import 'package:flutter_redux/flutter_redux.dart';
 
 class DynamicPage extends StatefulWidget {
   DynamicPage({Key key}) : super(key: key);
@@ -11,118 +14,66 @@ class DynamicPage extends StatefulWidget {
 
 class DynamicPageState extends State<DynamicPage>
     with AutomaticKeepAliveClientMixin<DynamicPage>, WidgetsBindingObserver {
-  final DynamicBloc dynamicBloc = new DynamicBloc();
-
   ///控制列表滚动和监听
   final ScrollController scrollController = new ScrollController();
 
-  final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
-      new GlobalKey<RefreshIndicatorState>();
+  bool isShow = false;
+  HomeEntity homeEntity;
 
-  bool _ignoring = true;
-
-  /// 模拟IOS下拉显示刷新
-  showRefreshLoading() {
-    ///直接触发下拉
-    new Future.delayed(const Duration(milliseconds: 500), () {
-      scrollController
-          .animateTo(-141,
-              duration: Duration(milliseconds: 600), curve: Curves.linear)
-          .then((_) {
-        /*setState(() {
-          _ignoring = false;
-        });*/
-      });
-      return true;
+  refreshHome() {
+    EventDao.getEventReceived(0).then((res) {
+      if (res != null && res.result) {
+        if (isShow) {
+          setState(() {
+            homeEntity = res.data;
+          });
+        }
+      }
     });
   }
-
-  scrollToTop() {
-    if (scrollController.offset <= 0) {
-      scrollController
-          .animateTo(0,
-              duration: Duration(milliseconds: 600), curve: Curves.linear)
-          .then((_) {
-        showRefreshLoading();
-      });
-    } else {
-      scrollController.animateTo(0,
-          duration: Duration(milliseconds: 600), curve: Curves.linear);
-    }
-  }
-
-  ///下拉刷新数据
-  Future<void> requestRefresh() async {
-    await dynamicBloc
-        .requestRefresh("")
-        .catchError((e) {
-      print(e);
-    });
-    setState(() {
-      _ignoring = false;
-    });
-  }
-
-  ///上拉更多请求数据
-  Future<void> requestLoadMore() async {
-    return await dynamicBloc.requestLoadMore("");
-  }
-
 
   @override
   void initState() {
+    isShow = true;
     super.initState();
-
-    ///监听生命周期，主要判断页面 resumed 的时候触发刷新
-    WidgetsBinding.instance.addObserver(this);
+    refreshHome();
   }
 
   @override
-  void didChangeDependencies() {
-    ///请求更新
-    if (dynamicBloc.getDataLength() == 0) {
-      dynamicBloc.changeNeedHeaderStatus(false);
-    }
-    super.didChangeDependencies();
-  }
-
-  ///监听生命周期，主要判断页面 resumed 的时候触发刷新
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      if (dynamicBloc.getDataLength() != 0) {
-        showRefreshLoading();
-      }
-    }
+  void dispose() {
+    isShow = false;
+    super.dispose();
   }
 
   @override
   bool get wantKeepAlive => true;
 
   @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    dynamicBloc.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    super.build(context); // See AutomaticKeepAliveClientMixin.
-    var content = AppPullLoadWidget(
-      dynamicBloc.pullLoadWidgetControl,
-      (BuildContext context, int index) {},
-      requestRefresh,
-      requestLoadMore,
-      refreshKey: refreshIndicatorKey,
-      scrollController: scrollController,
-
-      ///使用ios模式的下拉刷新
-      userIos: true,
+    TextStyle textStyle = TextStyle(
+      fontSize: 20,
+      color: Colors.black,
     );
-    return IgnorePointer(
-      ignoring: _ignoring,
-      child: content,
+    return new StoreBuilder<AppState>(
+      builder: (context, store) {
+        return Material(
+          child: new Container(
+            color: AppColors.white,
+            child: Stack(
+              children: <Widget>[
+                new Center(
+                    child: new Text(
+                        homeEntity == null ? "暂无数据" : homeEntity.nextPageUrl,
+                        style: textStyle.merge(
+                            TextStyle()),
+                        maxLines: 1,
+                        textDirection: TextDirection.ltr)
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

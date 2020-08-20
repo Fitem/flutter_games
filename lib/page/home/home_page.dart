@@ -4,10 +4,10 @@ import 'package:android_intent/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_games/common/localization/default_localizations.dart';
 import 'package:flutter_games/common/style/app_style.dart';
-import 'package:flutter_games/common/utils/navigator_utils.dart';
 import 'package:flutter_games/common/widget/app_tabbar_widget.dart';
 import 'package:flutter_games/common/widget/app_title_bar.dart';
 import 'package:flutter_games/page/dynamic/dynamic_page.dart';
+import 'package:flutter_games/page/main/welcome_page.dart';
 
 class HomePage extends StatefulWidget {
   static final String sName = "/";
@@ -44,7 +44,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     List<Widget> tabs = [
-      _renderTab(AppICons.HOME, AppLocalizations.i18n(context).home_dynamic)
+      _renderTab(AppICons.HOME, AppLocalizations.i18n(context).home_dynamic),
+      _renderTab(AppICons.MORE, AppLocalizations.i18n(context).home_dynamic)
     ];
     return WillPopScope(
       onWillPop: () {
@@ -54,12 +55,12 @@ class _HomePageState extends State<HomePage> {
           type: TabType.bottom,
         tabItems: tabs,
         tabViews: [
-          new DynamicPage(key: dynamicKey,)
+          new DynamicPage(key: dynamicKey),
+          new WelcomePage()
         ],
         onDoublePress: (index) {
             switch(index){
               case 0:
-                dynamicKey.currentState.scrollToTop();
                 break;
             }
         },
