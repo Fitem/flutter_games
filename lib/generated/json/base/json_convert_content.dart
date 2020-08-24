@@ -7,48 +7,147 @@ import 'package:flutter_games/model/home_entity.dart';
 import 'package:flutter_games/generated/json/home_entity_helper.dart';
 
 class JsonConvert<T> {
-	T fromJson(Map<String, dynamic> json) {
-		return _getFromJson<T>(runtimeType, this, json);
-	}
+  T fromJson(Map<String, dynamic> json) {
+    return _getFromJson<T>(runtimeType, this, json);
+  }
 
   Map<String, dynamic> toJson() {
-		return _getToJson<T>(runtimeType, this);
+    return _getToJson<T>(runtimeType, this);
   }
 
   static _getFromJson<T>(Type type, data, json) {
-    switch (type) {			case HomeEntity:
-			return homeEntityFromJson(data as HomeEntity, json) as T;			case HomeIssueList:
-			return homeIssueListFromJson(data as HomeIssueList, json) as T;			case HomeIssueListItemList:
-			return homeIssueListItemListFromJson(data as HomeIssueListItemList, json) as T;			case HomeIssueListItemListData:
-			return homeIssueListItemListDataFromJson(data as HomeIssueListItemListData, json) as T;    }
+    switch (type) {
+      case HomeEntity:
+        return homeEntityFromJson(data as HomeEntity, json) as T;
+      case HomeIssueList:
+        return homeIssueListFromJson(data as HomeIssueList, json) as T;
+      case HomeItemEntity:
+        return homeItemEntityFromJson(data as HomeItemEntity, json) as T;
+      case HomeItemData:
+        return homeItemDataFromJson(data as HomeItemData, json) as T;
+      case HomeItemDataTag:
+        return homeItemDataTagFromJson(data as HomeItemDataTag, json) as T;
+      case HomeItemDataConsumption:
+        return homeItemDataConsumptionFromJson(
+            data as HomeItemDataConsumption, json) as T;
+      case HomeItemDataProvider:
+        return homeItemDataProviderFromJson(data as HomeItemDataProvider, json)
+            as T;
+      case HomeItemDataAuthor:
+        return homeItemDataAuthorFromJson(data as HomeItemDataAuthor, json)
+            as T;
+      case HomeItemDataAuthorFollow:
+        return homeItemDataAuthorFollowFromJson(
+            data as HomeItemDataAuthorFollow, json) as T;
+      case HomeItemDataAuthorShield:
+        return homeItemDataAuthorShieldFromJson(
+            data as HomeItemDataAuthorShield, json) as T;
+      case HomeItemDataCover:
+        return homeItemDataCoverFromJson(data as HomeItemDataCover, json) as T;
+      case HomeItemDataWebUrl:
+        return homeItemDataWebUrlFromJson(data as HomeItemDataWebUrl, json)
+            as T;
+    }
     return data as T;
   }
 
   static _getToJson<T>(Type type, data) {
-		switch (type) {			case HomeEntity:
-			return homeEntityToJson(data as HomeEntity);			case HomeIssueList:
-			return homeIssueListToJson(data as HomeIssueList);			case HomeIssueListItemList:
-			return homeIssueListItemListToJson(data as HomeIssueListItemList);			case HomeIssueListItemListData:
-			return homeIssueListItemListDataToJson(data as HomeIssueListItemListData);    }
+    switch (type) {
+      case HomeEntity:
+        return homeEntityToJson(data as HomeEntity);
+      case HomeIssueList:
+        return homeIssueListToJson(data as HomeIssueList);
+      case HomeItemEntity:
+        return homeItemEntityToJson(data as HomeItemEntity);
+      case HomeItemData:
+        return homeItemDataToJson(data as HomeItemData);
+      case HomeItemDataTag:
+        return homeItemDataTagToJson(data as HomeItemDataTag);
+      case HomeItemDataConsumption:
+        return homeItemDataConsumptionToJson(data as HomeItemDataConsumption);
+      case HomeItemDataProvider:
+        return homeItemDataProviderToJson(data as HomeItemDataProvider);
+      case HomeItemDataAuthor:
+        return homeItemDataAuthorToJson(data as HomeItemDataAuthor);
+      case HomeItemDataAuthorFollow:
+        return homeItemDataAuthorFollowToJson(data as HomeItemDataAuthorFollow);
+      case HomeItemDataAuthorShield:
+        return homeItemDataAuthorShieldToJson(data as HomeItemDataAuthorShield);
+      case HomeItemDataCover:
+        return homeItemDataCoverToJson(data as HomeItemDataCover);
+      case HomeItemDataWebUrl:
+        return homeItemDataWebUrlToJson(data as HomeItemDataWebUrl);
+    }
     return data as T;
   }
+
   //Go back to a single instance by type
   static _fromJsonSingle(String type, json) {
-    switch (type) {			case 'HomeEntity':
-			return HomeEntity().fromJson(json);			case 'HomeIssueList':
-			return HomeIssueList().fromJson(json);			case 'HomeIssueListItemList':
-			return HomeIssueListItemList().fromJson(json);			case 'HomeIssueListItemListData':
-			return HomeIssueListItemListData().fromJson(json);    }
+    switch (type) {
+      case 'HomeEntity':
+        return HomeEntity().fromJson(json);
+      case 'HomeIssueList':
+        return HomeIssueList().fromJson(json);
+      case 'HomeIssueListItemList':
+        return HomeItemEntity().fromJson(json);
+      case 'HomeIssueListItemListData':
+        return HomeItemEntity().fromJson(json);
+      case 'HomeItemEntity':
+        return HomeItemEntity().fromJson(json);
+      case 'HomeItemData':
+        return HomeItemData().fromJson(json);
+      case 'HomeItemDataTag':
+        return HomeItemDataTag().fromJson(json);
+      case 'HomeItemDataConsumption':
+        return HomeItemDataConsumption().fromJson(json);
+      case 'HomeItemDataProvider':
+        return HomeItemDataProvider().fromJson(json);
+      case 'HomeItemDataAuthor':
+        return HomeItemDataAuthor().fromJson(json);
+      case 'HomeItemDataAuthorFollow':
+        return HomeItemDataAuthorFollow().fromJson(json);
+      case 'HomeItemDataAuthorShield':
+        return HomeItemDataAuthorShield().fromJson(json);
+      case 'HomeItemDataCover':
+        return HomeItemDataCover().fromJson(json);
+      case 'HomeItemDataWebUrl':
+        return HomeItemDataWebUrl().fromJson(json);
+    }
     return null;
   }
 
   //empty list is returned by type
   static _getListFromType(String type) {
-    switch (type) {			case 'HomeEntity':
-			return List<HomeEntity>();			case 'HomeIssueList':
-			return List<HomeIssueList>();			case 'HomeIssueListItemList':
-			return List<HomeIssueListItemList>();			case 'HomeIssueListItemListData':
-			return List<HomeIssueListItemListData>();    }
+    switch (type) {
+      case 'HomeEntity':
+        return List<HomeEntity>();
+      case 'HomeIssueList':
+        return List<HomeIssueList>();
+      case 'HomeIssueListItemList':
+        return List<HomeItemEntity>();
+      case 'HomeIssueListItemListData':
+        return List<HomeItemEntity>();
+      case 'HomeItemEntity':
+        return List<HomeItemEntity>();
+      case 'HomeItemData':
+        return List<HomeItemData>();
+      case 'HomeItemDataTag':
+        return List<HomeItemDataTag>();
+      case 'HomeItemDataConsumption':
+        return List<HomeItemDataConsumption>();
+      case 'HomeItemDataProvider':
+        return List<HomeItemDataProvider>();
+      case 'HomeItemDataAuthor':
+        return List<HomeItemDataAuthor>();
+      case 'HomeItemDataAuthorFollow':
+        return List<HomeItemDataAuthorFollow>();
+      case 'HomeItemDataAuthorShield':
+        return List<HomeItemDataAuthorShield>();
+      case 'HomeItemDataCover':
+        return List<HomeItemDataCover>();
+      case 'HomeItemDataWebUrl':
+        return List<HomeItemDataWebUrl>();
+    }
     return null;
   }
 
