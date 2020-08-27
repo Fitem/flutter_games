@@ -7,7 +7,7 @@ import 'package:flutter_games/common/style/app_style.dart';
 import 'package:flutter_games/common/widget/app_tabbar_widget.dart';
 import 'package:flutter_games/common/widget/app_title_bar.dart';
 import 'package:flutter_games/page/dynamic/dynamic_page.dart';
-import 'package:flutter_games/page/main/welcome_page.dart';
+import 'package:flutter_games/page/main/girls_page.dart';
 
 class HomePage extends StatefulWidget {
   static final String sName = "/";
@@ -52,17 +52,17 @@ class _HomePageState extends State<HomePage> {
         return _dialogExitApp(context);
       },
       child: new AppTabBarWidget(
-          type: TabType.bottom,
+        type: TabType.bottom,
         tabItems: tabs,
         tabViews: [
           new DynamicPage(key: dynamicKey),
-          new WelcomePage()
+          new GirlsPage(key: dynamicKey)
         ],
         onDoublePress: (index) {
-            switch(index){
-              case 0:
-                break;
-            }
+          switch (index) {
+            case 0:
+              break;
+          }
         },
         backgroundColor: AppColors.primarySwatch,
         indicatorColor: AppColors.white,

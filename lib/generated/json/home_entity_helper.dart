@@ -598,5 +598,3 @@ Map<String, dynamic> homeItemDataWebUrlToJson(HomeItemDataWebUrl entity) {
 	data['forWeibo'] = entity.forWeibo;
 	return data;
 }
-
-
