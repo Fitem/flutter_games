@@ -1,4 +1,5 @@
 import 'package:flutter/rendering.dart';
+import 'package:flutter_games/common/config/config.dart';
 import 'package:flutter_games/common/dao/dao_result.dart';
 import 'package:flutter_games/common/net/api.dart';
 import 'package:flutter_games/common/net/girls.dart';
@@ -22,8 +23,8 @@ class EventDao {
     }
   }
 
-  static getGirlsPic(ps, pg) async {
-    String url = Girls.getGirlsPic(ps, pg);
+  static getGirlsPic(pg) async {
+    String url = Girls.getGirlsPic(Config.PAGE_SIZE, pg);
     var res = await httpManager.netFetch(url, null, null, null);
     if (res != null) {
       var data = res.data;

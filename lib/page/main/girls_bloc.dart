@@ -1,40 +1,31 @@
-
 import 'package:flutter_games/common/config/config.dart';
 import 'package:flutter_games/common/dao/event_dao.dart';
 import 'package:flutter_games/common/widget/pull/app_pull_new_load_widget.dart';
 
-/**
- * Created by guoshuyu
- * on 2019/3/23.
- */
-class DynamicBloc {
+class GirlsBloc {
+  final AppPullLoadWidgetControl pullLoadWidgetControl =
+      new AppPullLoadWidgetControl();
 
-  final AppPullLoadWidgetControl pullLoadWidgetControl = new AppPullLoadWidgetControl();
+  int _page = 2;
 
-  int _page = 1;
-
-  requestRefresh(String userName, {doNextFlag = true}) async {
+  requestRefresh() async {
     pageReset();
-    var res = await EventDao.getEventReceived(0);
+    var res = await EventDao.getGirlsPic(_page);
     changeLoadMoreStatus(getLoadMoreStatus(res));
     refreshData(res);
-    if(doNextFlag) {
-      await doNext(res);
-    }
     return res;
   }
 
-  requestLoadMore(String userName) async {
+  requestLoadMore() async {
     pageUp();
-    var res = await EventDao.getEventReceived(0);
+    var res = await EventDao.getGirlsPic(_page);
     changeLoadMoreStatus(getLoadMoreStatus(res));
     loadMoreData(res);
     return res;
   }
 
-
   pageReset() {
-    _page = 1;
+    _page = 2;
   }
 
   pageUp() {
@@ -42,17 +33,10 @@ class DynamicBloc {
   }
 
   getLoadMoreStatus(res) {
-    return (res != null && res.data != null && res.data.length == Config.PAGE_SIZE);
-  }
-
-  doNext(res) async {
-    if (res.next != null) {
-      var resNext = await res.next();
-      if (resNext != null && resNext.result) {
-        changeLoadMoreStatus(getLoadMoreStatus(resNext));
-        refreshData(resNext);
-      }
-    }
+    return (res != null &&
+        res.data != null &&
+        res.data.results != null &&
+        res.data.results.length == Config.PAGE_SIZE);
   }
 
   ///列表数据长度
@@ -73,14 +57,14 @@ class DynamicBloc {
   ///刷新列表数据
   refreshData(res) {
     if (res != null) {
-      pullLoadWidgetControl.dataList = res.data;
+      pullLoadWidgetControl.dataList = res.data.results;
     }
   }
 
   ///加载更多数据
   loadMoreData(res) {
     if (res != null) {
-      pullLoadWidgetControl.addList(res.data);
+      pullLoadWidgetControl.addList(res.data.results);
     }
   }
 

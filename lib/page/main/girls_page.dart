@@ -1,11 +1,9 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_games/common/dao/event_dao.dart';
-import 'package:flutter_games/common/style/app_style.dart';
-import 'package:flutter_games/model/girls_entity.dart';
-import 'package:flutter_games/redux/app_state.dart';
-import 'package:flutter_redux/flutter_redux.dart';
+import 'package:flutter_games/common/widget/pull/app_pull_new_load_widget.dart';
+import 'package:flutter_games/page/main/girls_bloc.dart';
+import 'package:flutter_games/page/main/grils_item.dart';
 
 /**
  * Girls
@@ -21,94 +19,124 @@ class GirlsPage extends StatefulWidget {
 
 class _GirlsPageState extends State<GirlsPage>
     with AutomaticKeepAliveClientMixin<GirlsPage>, WidgetsBindingObserver {
-  bool isShow = false;
-  List<GirlsResult> results;
+  final GirlsBloc girlsBloc = new GirlsBloc();
 
   ///控制列表滚动和监听
-  final ScrollController _scrollController = new ScrollController();
+  final ScrollController scrollController = new ScrollController();
 
-  getGirlsPic(ps, pg) {
-    EventDao.getGirlsPic(ps, pg).then((res) {
-      if (res != null && res.result) {
-        if (isShow) {
-          setState(() {
-            results = res.data.results;
-          });
-        }
-      }
+  final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
+      new GlobalKey<RefreshIndicatorState>();
+
+  bool _ignoring = true;
+
+  /// 模拟IOS下拉显示刷新
+  showRefreshLoading() {
+    ///直接触发下拉
+    new Future.delayed(const Duration(milliseconds: 500), () {
+      scrollController
+          .animateTo(-141,
+              duration: Duration(milliseconds: 600), curve: Curves.linear)
+          .then((_) {
+        /*setState(() {
+          _ignoring = false;
+        });*/
+      });
+      return true;
     });
   }
 
-  TextStyle textStyle = TextStyle(
-    fontSize: 20,
-    color: Colors.black,
-  );
+  scrollToTop() {
+    if (scrollController.offset <= 0) {
+      scrollController
+          .animateTo(0,
+              duration: Duration(milliseconds: 600), curve: Curves.linear)
+          .then((_) {
+        showRefreshLoading();
+      });
+    } else {
+      scrollController.animateTo(0,
+          duration: Duration(milliseconds: 600), curve: Curves.linear);
+    }
+  }
+
+  ///下拉刷新数据
+  Future<void> requestRefresh() async {
+    await girlsBloc.requestRefresh().catchError((e) {
+      print(e);
+    });
+    setState(() {
+      _ignoring = false;
+    });
+  }
+
+  ///上拉更多请求数据
+  Future<void> requestLoadMore() async {
+    return await girlsBloc.requestLoadMore();
+  }
 
   @override
   void initState() {
     super.initState();
-    isShow = true;
-    getGirlsPic(20, 2);
+
+    ///监听生命周期，主要判断页面 resumed 的时候触发刷新
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
-  void dispose() {
-    isShow = false;
-    super.dispose();
+  void didChangeDependencies() {
+    ///请求更新
+    if (girlsBloc.getDataLength() == 0) {
+      girlsBloc.changeNeedHeaderStatus(false);
+
+      ///先读数据库
+      girlsBloc.requestRefresh().then((_) {
+        showRefreshLoading();
+      });
+    }
+    super.didChangeDependencies();
+  }
+
+  ///监听生命周期，主要判断页面 resumed 的时候触发刷新
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      if (girlsBloc.getDataLength() != 0) {
+        showRefreshLoading();
+      }
+    }
   }
 
   @override
   bool get wantKeepAlive => true;
 
   @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    girlsBloc.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return new StoreBuilder<AppState>(
-      builder: (context, store) {
-        return Material(
-          child: new Container(
-            color: AppColors.white,
-            child: Stack(
-              children: <Widget>[
-                new Center(
-                    child: results == null || results.length == 0
-                        ? new Text("暂无数据",
-                            style: textStyle.merge(TextStyle()),
-                            maxLines: 1,
-                            textDirection: TextDirection.ltr)
-                        : new ListView.builder(
-                            ///保持ListView任何情况都能滚动，解决在RefreshIndicator的兼容问题。
-                            physics: const AlwaysScrollableScrollPhysics(),
+    super.build(context); // See AutomaticKeepAliveClientMixin.
+    var content = AppPullLoadWidget(
+      girlsBloc.pullLoadWidgetControl,
+      (BuildContext context, int index) => _getItems(index),
+      requestRefresh,
+      requestLoadMore,
+      refreshKey: refreshIndicatorKey,
+      scrollController: scrollController,
 
-                            ///根据状态返回子孔健
-                            itemBuilder: (context, index) {
-                              return _getItem(index);
-                            },
-
-                            ///根据状态返回数量
-                            itemCount: _getListCount(),
-
-                            ///滑动监听
-                            controller: _scrollController,
-                          )),
-              ],
-            ),
-          ),
-        );
-      },
+      ///使用ios模式的下拉刷新
+      userIos: true,
+    );
+    return IgnorePointer(
+      ignoring: _ignoring,
+      child: content,
     );
   }
 
-  _getItem(int index) {
-    return Image.network(
-      results[index].url ?? AppICons.DEFAULT_REMOTE_PIC,
-      width: window.physicalSize.width,
-      height: 240.0,
-      //类似于Android的scaleType 此处让图片尽可能小 以覆盖整个widget
-      fit: BoxFit.contain,
-    );
-  }
-
-  _getListCount() {
-    return results.length;
+  _getItems(int index) {
+    return new GirlsItem(girlsBloc.dataList[index]);
   }
 }

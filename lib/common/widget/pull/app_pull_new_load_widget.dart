@@ -1,13 +1,13 @@
 import 'package:flare_flutter/flare_actor.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_games/common/localization/default_localizations.dart';
 import 'package:flutter_games/common/style/app_style.dart';
+import 'package:flutter_games/common/widget/pull/app_flare_pull_controller.dart';
 import 'package:flutter_games/common/widget/pull/app_refresh_sliver.dart'
-as IOS;
+    as IOS;
+import 'package:flutter/material.dart';
+import 'package:flutter_games/common/widget/pull/custom_bouncing_scroll_physics.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-
-import 'app_flare_pull_controller.dart';
-import 'custom_bouncing_scroll_physics.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 const double iosRefreshHeight = 140;
 const double iosRefreshIndicatorExtent = 100;
@@ -43,7 +43,7 @@ class AppPullLoadWidget extends StatefulWidget {
 
 class _AppPullLoadWidgetState extends State<AppPullLoadWidget>
     with AppFlarePullController {
-  //with GSYFlarePullMutliController {
+  //with AppFlarePullMutliController {
 
   final GlobalKey<IOS.CupertinoSliverRefreshControlState> sliverRefreshKey =
       GlobalKey<IOS.CupertinoSliverRefreshControlState>();
@@ -230,21 +230,43 @@ class _AppPullLoadWidgetState extends State<AppPullLoadWidget>
 
       ///下拉刷新触发，返回的是一个Future
       onRefresh: handleRefresh,
-      child: new ListView.builder(
+      child: getChildView(),
+    );
+  }
+
+  Widget getChildView() {
+    return new StaggeredGridView.countBuilder(
+
         ///保持ListView任何情况都能滚动，解决在RefreshIndicator的兼容问题。
         physics: const AlwaysScrollableScrollPhysics(),
+        primary: false,
+        crossAxisCount: 2,
+        mainAxisSpacing: 0,
+        crossAxisSpacing: 0,
 
         ///根据状态返回子孔健
         itemBuilder: (context, index) {
           return _getItem(index);
         },
-
-        ///根据状态返回数量
-        itemCount: _getListCount(),
+        staggeredTileBuilder: (index) => new StaggeredTile.fit(1),
 
         ///滑动监听
-        controller: _scrollController,
-      ),
+        controller: _scrollController);
+
+    return new ListView.builder(
+      ///保持ListView任何情况都能滚动，解决在RefreshIndicator的兼容问题。
+      physics: const AlwaysScrollableScrollPhysics(),
+
+      ///根据状态返回子孔健
+      itemBuilder: (context, index) {
+        return _getItem(index);
+      },
+
+      ///根据状态返回数量
+      itemCount: _getListCount(),
+
+      ///滑动监听
+      controller: _scrollController,
     );
   }
 
